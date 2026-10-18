@@ -69,7 +69,7 @@ from dock_logic import (
     is_candidate,
 )
 
-# AZ suite sidebar tokens: canonical copy in AZ-Colorflow, checked by glyphs-licensing.
+# Sidebar style tokens shared by the AZ plugins.
 AZ_CARD_RADIUS = 8.0  # rounded corner of a sidebar card
 AZ_CHIP_RADIUS = 6.0  # inner chips, pills and grid cells
 AZ_SIDE_MARGIN = 10.0  # sidebar edge -> card
