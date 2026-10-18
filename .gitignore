@@ -1,0 +1,14 @@
+# Ship only the plugin, the README and the GitHub Pages files.
+# Tests, uv project, dev notes and agent output stay local.
+/*
+!/.gitignore
+!/README.md
+!/AZ-Docker.glyphsPlugin/
+!/docs/
+/docs/*
+!/docs/install.html
+!/docs/images/
+
+.DS_Store
+__pycache__/
+*.pyc

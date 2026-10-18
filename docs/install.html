@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Install AZ Docker</title>
+<style>
+  :root { --bg:#fff; --fg:#111; --muted:#666; --btn:#111; --btn-fg:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111; --fg:#eee; --muted:#999; --btn:#eee; --btn-fg:#111; } }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--fg);
+         font:16px/1.5 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; text-align:center; padding:16px; }
+  h1 { font-size:1.4em; margin:0 0 .3em; }
+  p { color:var(--muted); margin:.3em 0 1.2em; }
+  a.btn { display:inline-block; margin:.25em; padding:.6em 1.1em; border-radius:8px; background:var(--btn); color:var(--btn-fg); text-decoration:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Opening Glyphs 4…</h1>
+  <p>If nothing happens, click below. AZ Docker needs Glyphs 4.</p>
+  <a class="btn" href="glyphsapp4://installplugin/AZ%20Docker">Install in Glyphs 4</a>
+  <p><a href="https://github.com/azerty-typefaces/AZ-Docker">Back to AZ Docker</a></p>
+</main>
+<script>
+  // Glyphs 4 only: AZ Docker stays inactive in Glyphs 3
+  location.href = "glyphsapp4://installplugin/AZ%20Docker";
+</script>
+</body>
+</html>
