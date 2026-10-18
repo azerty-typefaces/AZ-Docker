@@ -10,6 +10,8 @@ import objc
 from AppKit import (
     NSAnimationContext,
     NSApp,
+    NSAppearanceNameAqua,
+    NSAppearanceNameDarkAqua,
     NSBezelStyleDisclosure,
     NSBezierPath,
     NSBox,
@@ -81,7 +83,7 @@ AZ_TEXT_PT = 11.0  # body and (bold) header type
 AZ_METRIC_PT = 9.0  # monospaced metric / caption type
 AZ_TAB_ICON_H = 17.6  # sidebar tab-bar icon height (16 + 10%)
 AZ_CARD_RGB = 40 / 255.0  # house card grey, ALWAYS declared in sRGB
-# The card is pinned dark, so text on it is pinned white too.
+# Dark mode: text on the card grey is pinned white.
 AZ_INK = 0.95  # primary card text
 AZ_INK_DIM = 0.62  # captions, counts, secondary card text
 AZ_ICON_FILE = "az-icon.pdf"
@@ -111,6 +113,20 @@ def _az_card_fill():
     # sRGB, never calibrated: a calibrated 40 paints as sRGB ~53
     return NSColor.colorWithSRGBRed_green_blue_alpha_(
         AZ_CARD_RGB, AZ_CARD_RGB, AZ_CARD_RGB, 1.0
+    )
+
+
+def _is_dark(appearance) -> bool:
+    best = appearance.bestMatchFromAppearancesWithNames_(
+        [NSAppearanceNameAqua, NSAppearanceNameDarkAqua]
+    )
+    return best == NSAppearanceNameDarkAqua
+
+
+def _adaptive(light, dark):
+    """Native window colour in light mode, the AZ card colour in dark mode."""
+    return NSColor.colorWithName_dynamicProvider_(
+        None, lambda appearance: dark if _is_dark(appearance) else light
     )
 
 
@@ -181,7 +197,15 @@ def _grab_point():
 class AZDockerCardBox(NSBox):
     def drawRect_(self, dirty):
         objc.super(AZDockerCardBox, self).drawRect_(dirty)
-        _draw_glass_border(self.bounds(), AZ_CARD_RADIUS)
+        if _is_dark(self.effectiveAppearance()):
+            _draw_glass_border(self.bounds(), AZ_CARD_RADIUS)
+            return
+        NSColor.separatorColor().setStroke()
+        NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
+            NSInsetRect(self.bounds(), 0.5, 0.5),
+            AZ_CARD_RADIUS - 0.5,
+            AZ_CARD_RADIUS - 0.5,
+        ).stroke()
 
 
 class AZDockerStackView(NSStackView):
@@ -375,7 +399,7 @@ class DockUI:
         card.setTitlePosition_(NSNoTitle)
         card.setCornerRadius_(AZ_CARD_RADIUS)
         card.setBorderWidth_(0.0)  # the glass rim replaces the box border
-        card.setFillColor_(_az_card_fill())
+        card.setFillColor_(_adaptive(NSColor.windowBackgroundColor(), _az_card_fill()))
         card.setContentViewMargins_((0.0, 0.0))
         card.setTranslatesAutoresizingMaskIntoConstraints_(False)
 
@@ -473,7 +497,7 @@ class AZDockerHeaderView(NSView):
 
         label = NSTextField.labelWithString_(title)
         label.setFont_(NSFont.boldSystemFontOfSize_(AZ_TEXT_PT))
-        label.setTextColor_(_az_ink())
+        label.setTextColor_(_adaptive(NSColor.labelColor(), _az_ink()))
         label.setLineBreakMode_(NSLineBreakByTruncatingTail)
         label.setTranslatesAutoresizingMaskIntoConstraints_(False)
         self.addSubview_(label)
@@ -482,7 +506,7 @@ class AZDockerHeaderView(NSView):
         close.setBordered_(False)
         close.setTitle_("✕")
         close.setFont_(NSFont.systemFontOfSize_(AZ_TEXT_PT))
-        close.setContentTintColor_(_az_ink())
+        close.setContentTintColor_(_adaptive(NSColor.labelColor(), _az_ink()))
         close.setTarget_(self)
         close.setAction_("undockClicked:")
         close.setTranslatesAutoresizingMaskIntoConstraints_(False)
@@ -519,7 +543,10 @@ class AZDockerHeaderView(NSView):
             path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
                 band, 7.0, 7.0
             )
-            NSColor.blackColor().colorWithAlphaComponent_(0.15).setFill()
+            _adaptive(
+                NSColor.whiteColor(),
+                NSColor.blackColor().colorWithAlphaComponent_(0.15),
+            ).setFill()
             path.fill()
         except Exception:
             traceback.print_exc()
@@ -610,7 +637,7 @@ class AZDockerResizeGripView(NSView):
             path = NSBezierPath.bezierPathWithRoundedRect_xRadius_yRadius_(
                 handle, 1.5, 1.5
             )
-            _az_ink_dim().setFill()
+            _adaptive(NSColor.tertiaryLabelColor(), _az_ink_dim()).setFill()
             path.fill()
         except Exception:
             traceback.print_exc()
